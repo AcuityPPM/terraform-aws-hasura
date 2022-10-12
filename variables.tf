@@ -12,7 +12,7 @@
 
 variable "region" {
   description = "Region to deploy"
-  default     = "ap-northeast-1" # Asia Pacific Tokyo
+  default     = "us-east-1"
 }
 
 variable "domain" {
@@ -49,6 +49,16 @@ variable "hasura_jwt_secret_algo" {
 variable "hasura_console_enabled" {
   description = "Should the Hasura Console web interface be enabled?"
   default     = "true"
+}
+
+variable "rds_engine_version" {
+  description = "The version for RDS"
+  default = "14.4"
+}
+
+variable "rds_param_group" {
+  description = "The param group for RDS"
+  defaualt = "default.postgres14"
 }
 
 variable "rds_username" {
