@@ -379,7 +379,7 @@ resource "aws_s3_bucket" "hasura" {
 }
 
 resource "aws_s3_bucket_acl" "hasura-acl" {
-  bucket = aws_s3_bucket.b.id
+  bucket = aws_s3_bucket.hasura.id
   acl    = "private"
 }
 
