@@ -58,7 +58,7 @@ variable "rds_engine_version" {
 
 variable "rds_param_group" {
   description = "The param group for RDS"
-  defaualt = "default.postgres14"
+  default = "postgres14"
 }
 
 variable "rds_username" {
