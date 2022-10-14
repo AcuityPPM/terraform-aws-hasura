@@ -19,6 +19,11 @@ variable "domain" {
   description = "Domain name. Service will be deployed using the hasura_subdomain"
 }
 
+variable "vpc_id" {
+  description = "The Subdomain for your hasura graphql service."
+}
+
+
 variable "hasura_subdomain" {
   description = "The Subdomain for your hasura graphql service."
   default     = "hasura"

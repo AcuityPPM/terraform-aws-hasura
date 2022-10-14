@@ -41,7 +41,7 @@ resource "aws_acm_certificate_validation" "hasura" {
 resource "aws_security_group" "hasura_alb" {
   name        = "hasura-alb"
   description = "Allow access on port 443 only to ALB"
-  vpc_id      = "vpc-0f9eb8609d560e962"
+  vpc_id      = var.vpc_id
 
   ingress {
     protocol    = "tcp"
@@ -62,7 +62,7 @@ resource "aws_security_group" "hasura_alb" {
 resource "aws_security_group" "hasura_ecs" {
   name        = "hasura-tasks"
   description = "allow inbound access from the ALB only"
-  vpc_id      = "vpc-0f9eb8609d560e962"
+  vpc_id      = var.vpc_id
 
   ingress {
     protocol        = "tcp"
@@ -83,7 +83,7 @@ resource "aws_security_group" "hasura_ecs" {
 resource "aws_security_group" "hasura_rds" {
   name        = "hasura-rds"
   description = "allow inbound access from the hasura tasks only"
-  vpc_id      = "vpc-0f9eb8609d560e962"
+  vpc_id      = var.vpc_id
 
   ingress {
     protocol        = "tcp"
@@ -320,7 +320,7 @@ resource "aws_alb_target_group" "hasura" {
   name        = "hasura-alb"
   port        = 8080
   protocol    = "HTTP"
-  vpc_id      = "vpc-0f9eb8609d560e962"
+  vpc_id      = var.vpc_id
   target_type = "ip"
 
   health_check {
