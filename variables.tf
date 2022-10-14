@@ -97,6 +97,16 @@ variable "vpc_enable_dns_hostnames" {
   default     = false
 }
 
+variable "private_subnet_ids" {
+  description = "The admin secret to secure hasura; for admin access"
+}
+
+
+variable "public_subnet_ids" {
+  description = "The admin secret to secure hasura; for admin access"
+}
+
+
 variable "environment" {
   description = "Environment variables for ECS task: [ { name = \"foo\", value = \"bar\" }, ..]"
   default     = []
