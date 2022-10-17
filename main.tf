@@ -39,7 +39,7 @@ resource "aws_acm_certificate_validation" "hasura" {
 
 # Internet to ALB
 resource "aws_security_group" "hasura_alb" {
-  name        = "hasura-alb"
+  name       = "${var.rds_db_name}-alb"
   description = "Allow access on port 443 only to ALB"
   vpc_id      = var.vpc_id
 
@@ -60,7 +60,8 @@ resource "aws_security_group" "hasura_alb" {
 
 # ALB TO ECS
 resource "aws_security_group" "hasura_ecs" {
-  name        = "hasura-tasks"
+  name       = "${var.rds_db_name}-tasks"
+  description = "Allow access on port 443 only to ALB"
   description = "allow inbound access from the ALB only"
   vpc_id      = var.vpc_id
 
@@ -81,7 +82,7 @@ resource "aws_security_group" "hasura_ecs" {
 
 # ECS to RDS
 resource "aws_security_group" "hasura_rds" {
-  name        = "hasura-rds"
+  name       = "${var.rds_db_name}-sg"
   description = "allow inbound access from the hasura tasks only"
   vpc_id      = var.vpc_id
 
@@ -105,13 +106,13 @@ resource "aws_security_group" "hasura_rds" {
 # -----------------------------------------------------------------------------
 
 resource "aws_db_subnet_group" "hasura" {
-  name       = "hasura"
+  name       = "${var.rds_db_name}-subnet-group"
   subnet_ids = var.private_subnet_ids
 }
 
 resource "aws_db_instance" "hasura" {
   db_name                = var.rds_db_name
-  identifier             = "hasura"
+  identifier             = var.rds_db_name
   username               = var.rds_username
   password               = var.rds_password
   port                   = "5432"
@@ -210,7 +211,7 @@ locals {
 }
 
 resource "aws_ecs_task_definition" "hasura" {
-  family                   = "hasura"
+  family                   = "hasura-${var.rds_db_name}"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = "256"
@@ -239,7 +240,7 @@ resource "aws_ecs_service" "hasura" {
     aws_alb_listener.hasura,
   ]
 
-  name            = "hasura-service"
+  name            = "${var.rds_db_name}-service"
   cluster         = aws_ecs_cluster.hasura.id
   task_definition = aws_ecs_task_definition.hasura.arn
   desired_count   = var.multi_az == true ? "2" : "1"
@@ -301,7 +302,7 @@ resource "aws_s3_bucket_policy" "hasura" {
 # -----------------------------------------------------------------------------
 
 resource "aws_alb" "hasura" {
-  name            = "hasura-alb"
+  name            = "${var.rds_db_name}-alb"
   subnets         = var.public_subnet_ids
   security_groups = [aws_security_group.hasura_alb.id]
 
@@ -317,7 +318,7 @@ resource "aws_alb" "hasura" {
 # -----------------------------------------------------------------------------
 
 resource "aws_alb_target_group" "hasura" {
-  name        = "hasura-alb"
+  name        = "${var.rds_db_name}-alb"
   port        = 8080
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
