@@ -61,7 +61,6 @@ resource "aws_security_group" "hasura_alb" {
 # ALB TO ECS
 resource "aws_security_group" "hasura_ecs" {
   name       = "${var.rds_db_name}-tasks"
-  description = "Allow access on port 443 only to ALB"
   description = "allow inbound access from the ALB only"
   vpc_id      = var.vpc_id
 
