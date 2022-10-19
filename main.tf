@@ -100,6 +100,33 @@ resource "aws_security_group" "hasura_rds" {
   }
 }
 
+# ec2 to rds
+resource "aws_security_group" "allow_internal_postgres_in" {
+  name        = "allow_internal_postgres_in-${var.rds_db_name}"
+  description = "Allows internal postgres in"
+  vpc_id      = var.vpc_id
+}
+
+resource "aws_security_group_rule" "network_ingress_postgres_only" {
+  security_group_id = "${aws_security_group.allow_internal_postgres_in.id}"
+  from_port         = 5432
+  to_port           = 5432
+  protocol          = "tcp"
+  type              = "ingress"
+  cidr_blocks       = [
+                        "172.17.0.0/16"
+                       ]
+}
+
+resource "aws_security_group_rule" "allow_postgres_http_out" {
+  security_group_id = "${aws_security_group.allow_internal_postgres_in.id}"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "All"
+  type              = "egress"
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
 # -----------------------------------------------------------------------------
 # Create RDS
 # -----------------------------------------------------------------------------
@@ -120,7 +147,7 @@ resource "aws_db_instance" "hasura" {
   instance_class         = var.rds_instance
   allocated_storage      = "10"
   storage_encrypted      = var.rds_storage_encrypted
-  vpc_security_group_ids = [aws_security_group.hasura_rds.id]
+  vpc_security_group_ids = [aws_security_group.hasura_rds.id, aws_security_group.allow_internal_postgres_in.id]
   db_subnet_group_name   = aws_db_subnet_group.hasura.name
   parameter_group_name   = var.rds_param_group
   multi_az               = var.multi_az
