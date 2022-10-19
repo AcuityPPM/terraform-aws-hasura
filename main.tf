@@ -125,7 +125,7 @@ resource "aws_db_instance" "hasura" {
   parameter_group_name   = var.rds_param_group
   multi_az               = var.multi_az
   storage_type           = "gp2"
-  publicly_accessible    = false
+  publicly_accessible    = true
 
   allow_major_version_upgrade = false
   auto_minor_version_upgrade  = false
