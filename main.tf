@@ -221,6 +221,7 @@ locals {
 
       portMappings = [
         {
+          protocol      = "tcp",
           containerPort = 8080,
           hostPort      = 8080
         }
@@ -247,7 +248,7 @@ resource "aws_ecs_task_definition" "hasura" {
   cpu                      = "256"
   memory                   = "512"
   execution_role_arn       = "arn:aws:iam::533085732793:role/system/hasura-role"
-
+  tags                     = {}
   container_definitions = jsonencode(local.ecs_container_definitions)
 }
 
