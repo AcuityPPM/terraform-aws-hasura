@@ -248,7 +248,7 @@ resource "aws_ecs_task_definition" "hasura" {
   cpu                      = "256"
   memory                   = "512"
   execution_role_arn       = "arn:aws:iam::533085732793:role/system/hasura-role"
-  tags                     = {}
+  tags                     = { "name": "hasura-${var.rds_db_name}" }
   container_definitions = jsonencode(local.ecs_container_definitions)
 }
 
@@ -273,6 +273,7 @@ resource "aws_ecs_service" "hasura" {
 
   name            = "${var.rds_db_name}-service"
   cluster         = aws_ecs_cluster.hasura.id
+  tags            = {}
   task_definition = aws_ecs_task_definition.hasura.arn
   desired_count   = var.multi_az == true ? "2" : "1"
   launch_type     = "FARGATE"
