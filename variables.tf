@@ -34,11 +34,6 @@ variable "app_subdomain" {
   default     = "app"
 }
 
-variable "frontend_subdomain" {
-  description = "The Subdomain for your application that will make CORS requests to the hasura_subdomain"
-  default     = "app"
-}
-
 variable "hasura_version_tag" {
   description = "The hasura graphql engine version tag"
   default     = "v1.0.0"
