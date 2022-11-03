@@ -197,7 +197,7 @@ locals {
     },
     {
       name  = "HASURA_GRAPHQL_CORS_DOMAIN",
-      value = "https://${var.app_subdomain}.netlify.app:443, https://${var.app_subdomain}.netlify.app"
+      value = "https://${var.app_domain}:443, https://${var.app_domain}"
     },
     {
       name  = "HASURA_GRAPHQL_PG_CONNECTIONS",

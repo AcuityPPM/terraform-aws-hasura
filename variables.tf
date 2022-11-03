@@ -29,7 +29,7 @@ variable "hasura_subdomain" {
   default     = "hasura"
 }
 
-variable "app_subdomain" {
+variable "app_domain" {
   description = "The Subdomain for your application that will make CORS requests to the hasura_subdomain"
   default     = "app"
 }
