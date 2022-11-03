@@ -174,6 +174,7 @@ resource "aws_db_instance" "hasura" {
 
 resource "aws_cloudwatch_log_group" "hasura" {
   name = "/ecs/hasura-${var.rds_db_name}"
+  retention_in_days = 5
 }
 
 
