@@ -455,7 +455,7 @@ resource "aws_cloudwatch_metric_alarm" "low_disk" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "low_cpu_credits" {
-  count = substr(var.instance_class, 0, 4) == "db.t" ? 1 : 0
+  count = substr(var.rds_instance, 0, 4) == "db.t" ? 1 : 0
 
   alarm_name          = "db-${var.rds_db_name}-low-cpu-credits"
   comparison_operator = "LessThanOrEqualToThreshold"
