@@ -23,6 +23,10 @@ variable "vpc_id" {
   description = "The Subdomain for your hasura graphql service."
 }
 
+variable "alarm_sns_topics" {
+  description = "the arn to alert to"
+}
+
 
 variable "hasura_subdomain" {
   description = "The Subdomain for your hasura graphql service."
