@@ -253,6 +253,36 @@ resource "aws_ecs_task_definition" "hasura" {
   container_definitions = jsonencode(local.ecs_container_definitions)
 }
 
+resource "aws_appautoscaling_target" "this" {
+  max_capacity       = var.max_capacity
+  min_capacity       = var.min_capacity
+  resource_id        = "service/${aws_ecs_cluster.hasura.name}/${aws_ecs_service.hasura.name}"
+  scalable_dimension = "ecs:service:DesiredCount"
+  service_namespace  = "ecs"
+
+  depends_on = [aws_ecs_service.hasura]
+}
+
+resource "aws_appautoscaling_policy" "this" {
+  name               = "${var.rds_db_name}-autoscaling-policy"
+  policy_type        = "TargetTrackingScaling"
+  resource_id        = aws_appautoscaling_target.this.resource_id
+  scalable_dimension = aws_appautoscaling_target.this.scalable_dimension
+  service_namespace  = aws_appautoscaling_target.this.service_namespace
+
+  target_tracking_scaling_policy_configuration {
+    target_value = 65
+    scale_in_cooldown  = 300
+    scale_out_cooldown = 300
+
+    predefined_metric_specification {
+      predefined_metric_type = "ECSServiceAverageCPUUtilization"
+    }
+  }
+
+  depends_on = [aws_appautoscaling_target.this]
+}
+
 # -----------------------------------------------------------------------------
 # Create ECS cluster
 # -----------------------------------------------------------------------------
