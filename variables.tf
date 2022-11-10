@@ -27,6 +27,16 @@ variable "alarm_sns_topics" {
   description = "the arn to alert to"
 }
 
+variable "max_capacity" {
+  description = "max capacity of hasura"
+}
+
+
+variable "min_capacity" {
+  description = "min capacity of hasura"
+}
+
+
 
 variable "hasura_subdomain" {
   description = "The Subdomain for your hasura graphql service."
