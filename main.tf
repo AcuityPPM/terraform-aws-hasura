@@ -213,8 +213,8 @@ locals {
   ecs_container_definitions = [
     {
       image       = "hasura/graphql-engine:${var.hasura_version_tag}",
-      cpu       = 20,
-      memory    = 512,
+      cpu       = 40,
+      memory    = 1024,
       essential   = true,
       mountPoints = [],
       volumesFrom = [],
