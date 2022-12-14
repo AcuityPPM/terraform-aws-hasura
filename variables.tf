@@ -23,6 +23,22 @@ variable "vpc_id" {
   description = "The Subdomain for your hasura graphql service."
 }
 
+variable "hasura_task_cpu" {
+  description = "The task cpu"
+}
+
+variable "hasura_task_memory" {
+  description = "The task memory"
+}
+
+variable "hasura_container_cpu" {
+  description = "The cpu in the ecs container"
+}
+
+variable "hasura_container_memory" {
+  description = "The memory in the ecs container"
+}
+
 variable "alarm_sns_topics" {
   description = "the arn to alert to"
 }

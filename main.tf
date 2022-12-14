@@ -213,8 +213,8 @@ locals {
   ecs_container_definitions = [
     {
       image       = "hasura/graphql-engine:${var.hasura_version_tag}",
-      cpu       = 40,
-      memory    = 1024,
+      cpu         = var.hasura_container_cpu,
+      memory      = var.hasura_container_memory,
       essential   = true,
       mountPoints = [],
       volumesFrom = [],
@@ -247,8 +247,8 @@ resource "aws_ecs_task_definition" "hasura" {
   family                   = "hasura-${var.rds_db_name}"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = "256"
-  memory                   = "1024"
+  cpu                      = var.hasura_task_cpu
+  memory                   = var.hasura_task_memory
   execution_role_arn       = "arn:aws:iam::533085732793:role/system/hasura-role"
   tags                     = { "name": "hasura-${var.rds_db_name}" }
   container_definitions = jsonencode(local.ecs_container_definitions)
