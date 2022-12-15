@@ -249,7 +249,7 @@ resource "aws_ecs_task_definition" "hasura" {
   requires_compatibilities = ["FARGATE"]
   cpu                      = var.hasura_task_cpu
   memory                   = var.hasura_task_memory
-  execution_role_arn       = "arn:aws:iam::533085732793:role/system/hasura-role"
+  execution_role_arn       = var.execution_role_arn
   tags                     = { "name": "hasura-${var.rds_db_name}" }
   container_definitions = jsonencode(local.ecs_container_definitions)
 }

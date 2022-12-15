@@ -19,6 +19,10 @@ variable "domain" {
   description = "Domain name. Service will be deployed using the hasura_subdomain"
 }
 
+variable "execution_role_arn" {
+  description = "the role that the ecs task needs to execute"
+}
+
 variable "vpc_id" {
   description = "The Subdomain for your hasura graphql service."
 }
