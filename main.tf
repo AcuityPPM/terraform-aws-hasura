@@ -198,7 +198,7 @@ locals {
     },
     {
       name  = "HASURA_GRAPHQL_CORS_DOMAIN",
-      value = "https://${var.app_domain}:443, https://${var.app_domain}"
+      value = "https://${var.app_domain}:443, https://${var.app_domain}, https://${var.app_domain}:8080"
     },
     {
       name  = "HASURA_GRAPHQL_PG_CONNECTIONS",
