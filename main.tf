@@ -147,7 +147,7 @@ resource "aws_db_instance" "hasura" {
   instance_class         = var.rds_instance
   allocated_storage      = "10"
   storage_encrypted      = var.rds_storage_encrypted
-  vpc_security_group_ids = [aws_security_group.hasura_rds.id, aws_security_group.allow_internal_postgres_in.id, var.rds_whitelist_sg == "" ? null : var.rds_whitelist_sg]
+  vpc_security_group_ids = [aws_security_group.hasura_rds.id, aws_security_group.allow_internal_postgres_in.id, var.rds_whitelist_sg]
   db_subnet_group_name   = aws_db_subnet_group.hasura.name
   parameter_group_name   = var.rds_param_group
   multi_az               = var.multi_az
