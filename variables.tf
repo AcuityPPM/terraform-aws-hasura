@@ -15,6 +15,13 @@ variable "region" {
   default     = "us-east-1"
 }
 
+variable "rds_whitelist_sg" {
+  description = "Whitelist security group to add to rds"
+  default     = ""
+}
+
+
+
 variable "domain" {
   description = "Domain name. Service will be deployed using the hasura_subdomain"
 }
