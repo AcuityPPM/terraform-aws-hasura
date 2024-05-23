@@ -20,7 +20,10 @@ variable "rds_whitelist_sg" {
   default     = ""
 }
 
-
+variable "rds_whitelist_lambda_sg" {
+  description = "Whitelist security group to add to rds"
+  default     = ""
+}
 
 variable "domain" {
   description = "Domain name. Service will be deployed using the hasura_subdomain"
