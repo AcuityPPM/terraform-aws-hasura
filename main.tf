@@ -197,6 +197,10 @@ locals {
       value = "${var.hasura_console_enabled}"
     },
     {
+      name  = "HASURA_GRAPHQL_REDIS_URL",
+      value = "${var.hasura_graphql_redis_url}"
+    },
+    {
       name  = "HASURA_GRAPHQL_CORS_DOMAIN",
       value = "https://${var.app_domain}:443, https://${var.app_domain}"
     },

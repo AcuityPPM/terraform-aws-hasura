@@ -87,6 +87,10 @@ variable "hasura_admin_secret" {
   description = "The admin secret to secure hasura; for admin access"
 }
 
+variable "hasura_graphql_redis_url" {
+  description = "HASURA_GRAPHQL_REDIS_URL"
+}
+
 variable "hasura_jwt_secret_key" {
   description = "The secret shared key for JWT verification"
 }
