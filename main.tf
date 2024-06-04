@@ -508,3 +508,27 @@ resource "aws_cloudwatch_metric_alarm" "low_cpu_credits" {
     DBInstanceIdentifier = var.rds_db_name
   }
 }
+
+
+# -----------------------------------------------------------------------------
+# ECS Alerts
+# -----------------------------------------------------------------------------
+
+resource "aws_cloudwatch_metric_alarm" "ecs_high_cpu" {
+  alarm_name          = "ecs-${var.rds_db_name}-high-cpu"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/ECS"
+  period              = "300"
+  statistic           = "Average"
+  threshold           = "70"
+  alarm_description   = "ECS service CPU utilization above threshold"
+  alarm_actions       = var.alarm_sns_topics
+  ok_actions          = var.alarm_sns_topics
+
+  dimensions = {
+    ClusterName  = aws_ecs_cluster.hasura.name
+    ServiceName  = aws_ecs_service.hasura.name
+  }
+}
