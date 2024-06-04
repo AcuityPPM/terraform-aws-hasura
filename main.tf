@@ -258,25 +258,6 @@ resource "aws_ecs_task_definition" "hasura" {
   container_definitions = jsonencode(local.ecs_container_definitions)
 }
 
-# Create a CloudWatch alarm for high CPU utilization
-resource "aws_cloudwatch_metric_alarm" "ecs_task_high_cpu" {
-  alarm_name          = "ecs-task-${var.rds_db_name}-high-cpu"
-  comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = "1"
-  metric_name         = "CPUUtilization"
-  namespace           = "AWS/ECS"
-  period              = "300"
-  statistic           = "Maximum"
-  threshold           = "70"
-  alarm_description   = "ECS task CPU utilization above threshold"
-  alarm_actions       = [aws_appautoscaling_policy.scale_up_policy.arn]
-  ok_actions          = []
-
-  dimensions = {
-    ClusterName = aws_ecs_cluster.hasura.name
-    ServiceName = aws_ecs_service.hasura.name
-  }
-}
 
 # Create a step scaling policy
 resource "aws_appautoscaling_policy" "scale_up_policy" {
@@ -545,7 +526,7 @@ resource "aws_cloudwatch_metric_alarm" "ecs_task_high_cpu" {
   statistic           = "Maximum"
   threshold           = "70"
   alarm_description   = "ECS task CPU utilization above threshold"
-  alarm_actions       = var.alarm_sns_topics
+  alarm_actions       = [var.alarm_sns_topics, aws_appautoscaling_policy.scale_up_policy.arn]
   ok_actions          = var.alarm_sns_topics
 
   dimensions = {
