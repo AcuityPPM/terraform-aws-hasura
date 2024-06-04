@@ -532,3 +532,22 @@ resource "aws_cloudwatch_metric_alarm" "ecs_high_cpu" {
     ServiceName  = aws_ecs_service.hasura.name
   }
 }
+
+resource "aws_cloudwatch_metric_alarm" "ecs_task_high_cpu" {
+  alarm_name          = "ecs-task-${var.rds_db_name}-high-cpu"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/ECS"
+  period              = "300"
+  statistic           = "Average"
+  threshold           = "70"
+  alarm_description   = "ECS task CPU utilization above threshold"
+  alarm_actions       = var.alarm_sns_topics
+  ok_actions          = var.alarm_sns_topics
+
+  dimensions = {
+    ClusterName = aws_ecs_cluster.hasura.name
+    ServiceName = aws_ecs_service.hasura.name
+  }
+}
