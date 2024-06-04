@@ -258,6 +258,47 @@ resource "aws_ecs_task_definition" "hasura" {
   container_definitions = jsonencode(local.ecs_container_definitions)
 }
 
+# Create a CloudWatch alarm for high CPU utilization
+resource "aws_cloudwatch_metric_alarm" "ecs_task_high_cpu" {
+  alarm_name          = "ecs-task-${var.rds_db_name}-high-cpu"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/ECS"
+  period              = "300"
+  statistic           = "Maximum"
+  threshold           = "70"
+  alarm_description   = "ECS task CPU utilization above threshold"
+  alarm_actions       = [aws_appautoscaling_policy.scale_up_policy.arn]
+  ok_actions          = []
+
+  dimensions = {
+    ClusterName = aws_ecs_cluster.hasura.name
+    ServiceName = aws_ecs_service.hasura.name
+  }
+}
+
+# Create a step scaling policy
+resource "aws_appautoscaling_policy" "scale_up_policy" {
+  name               = "${var.rds_db_name}-scale-up-policy"
+  policy_type        = "StepScaling"
+  resource_id        = "service/${aws_ecs_cluster.hasura.name}/${aws_ecs_service.hasura.name}"
+  scalable_dimension = "ecs:service:DesiredCount"
+  service_namespace  = "ecs"
+
+  step_scaling_policy_configuration {
+    adjustment_type         = "ChangeInCapacity"
+    cooldown                = 300
+    metric_aggregation_type = "Maximum"
+
+    step_adjustment {
+      scaling_adjustment = 1
+      metric_interval_lower_bound = 0
+    }
+  }
+}
+
+# Ensure the scaling target is defined
 resource "aws_appautoscaling_target" "this" {
   max_capacity       = var.max_capacity
   min_capacity       = var.min_capacity
@@ -266,26 +307,6 @@ resource "aws_appautoscaling_target" "this" {
   service_namespace  = "ecs"
 
   depends_on = [aws_ecs_service.hasura]
-}
-
-resource "aws_appautoscaling_policy" "this" {
-  name               = "${var.rds_db_name}-autoscaling-policy"
-  policy_type        = "TargetTrackingScaling"
-  resource_id        = aws_appautoscaling_target.this.resource_id
-  scalable_dimension = aws_appautoscaling_target.this.scalable_dimension
-  service_namespace  = aws_appautoscaling_target.this.service_namespace
-
-  target_tracking_scaling_policy_configuration {
-    target_value = 65
-    scale_in_cooldown  = 300
-    scale_out_cooldown = 300
-
-    predefined_metric_specification {
-      predefined_metric_type = "ECSServiceAverageCPUUtilization"
-    }
-  }
-
-  depends_on = [aws_appautoscaling_target.this]
 }
 
 # -----------------------------------------------------------------------------
