@@ -259,8 +259,8 @@ resource "aws_ecs_task_definition" "hasura" {
 }
 
 # Create a CloudWatch alarm for high CPU utilization (scale up)
-resource "aws_cloudwatch_metric_alarm" "ecs_task_high_cpu" {
-  alarm_name          = "ecs-task-${var.rds_db_name}-high-cpu"
+resource "aws_cloudwatch_metric_alarm" "ecs_task_high_cpu_scale" {
+  alarm_name          = "ecs-task-${var.rds_db_name}-high-cpu-scale"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
   metric_name         = "CPUUtilization"
@@ -279,8 +279,8 @@ resource "aws_cloudwatch_metric_alarm" "ecs_task_high_cpu" {
 }
 
 # Create a CloudWatch alarm for low CPU utilization (scale down)
-resource "aws_cloudwatch_metric_alarm" "ecs_task_low_cpu" {
-  alarm_name          = "ecs-task-${var.rds_db_name}-low-cpu"
+resource "aws_cloudwatch_metric_alarm" "ecs_task_low_cpu_scale" {
+  alarm_name          = "ecs-task-${var.rds_db_name}-low-cpu-scale"
   comparison_operator = "LessThanOrEqualToThreshold"
   evaluation_periods  = "4"
   metric_name         = "CPUUtilization"
