@@ -337,8 +337,8 @@ resource "aws_appautoscaling_policy" "scale_down_policy" {
     metric_aggregation_type = "Maximum"
 
     step_adjustment {
-      metric_interval_upper_bound = 0
       scaling_adjustment          = -1
+      metric_interval_upper_bound = 0
     }
   }
 }
