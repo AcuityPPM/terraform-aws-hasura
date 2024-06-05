@@ -330,13 +330,16 @@ resource "aws_appautoscaling_policy" "scale_down_policy" {
   resource_id        = "service/${aws_ecs_cluster.hasura.name}/${aws_ecs_service.hasura.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
-  adjustment_type = "ChangeInCapacity"
-  cooldown = 60
-  metric_aggregation_type = "Maximum"
 
-  step_adjustment {
-    metric_interval_lower_bound = 0
-    scaling_adjustment = -1
+  step_scaling_policy_configuration {
+    adjustment_type         = "ChangeInCapacity"
+    cooldown                = 60
+    metric_aggregation_type = "Maximum"
+
+    step_adjustment {
+      metric_interval_upper_bound = 0
+      scaling_adjustment          = -1
+    }
   }
 }
 
