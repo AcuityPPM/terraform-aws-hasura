@@ -348,10 +348,6 @@ resource "aws_appautoscaling_policy" "scale_down_policy" {
       scaling_adjustment = -3
       metric_interval_lower_bound = 20
     }
-    step_adjustment {
-      scaling_adjustment = -4
-      metric_interval_lower_bound = 30
-    }
   }
 }
 
