@@ -272,7 +272,7 @@ resource "aws_cloudwatch_metric_alarm" "ecs_task_high_cpu_scale" {
   namespace           = "AWS/ECS"
   period              = "300"
   statistic           = "Maximum"
-  threshold           = "80"
+  threshold           = "70"
   alarm_description   = "ECS task CPU utilization above threshold"
   alarm_actions       = [aws_appautoscaling_policy.scale_up_policy.arn]
   ok_actions          = []
@@ -333,7 +333,7 @@ resource "aws_appautoscaling_policy" "scale_down_policy" {
 
   step_scaling_policy_configuration {
     adjustment_type         = "ChangeInCapacity"
-    cooldown                = 60
+    cooldown                = 1200
     metric_aggregation_type = "Maximum"
 
     step_adjustment {
