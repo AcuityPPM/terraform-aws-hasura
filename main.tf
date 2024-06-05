@@ -258,8 +258,47 @@ resource "aws_ecs_task_definition" "hasura" {
   container_definitions = jsonencode(local.ecs_container_definitions)
 }
 
+# Create a CloudWatch alarm for high CPU utilization (scale up)
+resource "aws_cloudwatch_metric_alarm" "ecs_task_high_cpu" {
+  alarm_name          = "ecs-task-${var.rds_db_name}-high-cpu"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/ECS"
+  period              = "300"
+  statistic           = "Maximum"
+  threshold           = "80"
+  alarm_description   = "ECS task CPU utilization above threshold"
+  alarm_actions       = [aws_appautoscaling_policy.scale_up_policy.arn]
+  ok_actions          = []
 
-# Create a step scaling policy
+  dimensions = {
+    ClusterName = aws_ecs_cluster.hasura.name
+    ServiceName = aws_ecs_service.hasura.name
+  }
+}
+
+# Create a CloudWatch alarm for low CPU utilization (scale down)
+resource "aws_cloudwatch_metric_alarm" "ecs_task_low_cpu" {
+  alarm_name          = "ecs-task-${var.rds_db_name}-low-cpu"
+  comparison_operator = "LessThanOrEqualToThreshold"
+  evaluation_periods  = "4"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/ECS"
+  period              = "300"
+  statistic           = "Maximum"
+  threshold           = "30"
+  alarm_description   = "ECS task CPU utilization below threshold"
+  alarm_actions       = [aws_appautoscaling_policy.scale_down_policy.arn]
+  ok_actions          = []
+
+  dimensions = {
+    ClusterName = aws_ecs_cluster.hasura.name
+    ServiceName = aws_ecs_service.hasura.name
+  }
+}
+
+# Create a step scaling policy for scaling up
 resource "aws_appautoscaling_policy" "scale_up_policy" {
   name               = "${var.rds_db_name}-scale-up-policy"
   policy_type        = "StepScaling"
@@ -274,6 +313,26 @@ resource "aws_appautoscaling_policy" "scale_up_policy" {
 
     step_adjustment {
       scaling_adjustment = 1
+      metric_interval_lower_bound = 0
+    }
+  }
+}
+
+# Create a step scaling policy for scaling down
+resource "aws_appautoscaling_policy" "scale_down_policy" {
+  name               = "${var.rds_db_name}-scale-down-policy"
+  policy_type        = "StepScaling"
+  resource_id        = "service/${aws_ecs_cluster.hasura.name}/${aws_ecs_service.hasura.name}"
+  scalable_dimension = "ecs:service:DesiredCount"
+  service_namespace  = "ecs"
+
+  step_scaling_policy_configuration {
+    adjustment_type         = "ChangeInCapacity"
+    cooldown                = 300
+    metric_aggregation_type = "Maximum"
+
+    step_adjustment {
+      scaling_adjustment = -1
       metric_interval_lower_bound = 0
     }
   }
@@ -526,7 +585,7 @@ resource "aws_cloudwatch_metric_alarm" "ecs_task_high_cpu" {
   statistic           = "Maximum"
   threshold           = "70"
   alarm_description   = "ECS task CPU utilization above threshold"
-  alarm_actions       = [var.alarm_sns_topics, aws_appautoscaling_policy.scale_up_policy.arn]
+  alarm_actions       = var.alarm_sns_topics
   ok_actions          = var.alarm_sns_topics
 
   dimensions = {
