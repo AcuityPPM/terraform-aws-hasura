@@ -3,7 +3,6 @@
 The `terraform-aws-hasura` project is a Terraform module for deploying **Hasura GraphQL Engine** on AWS with high availability. It sets up a complete infrastructure including a *PostgreSQL database* in RDS, Hasura running in ECS Fargate, and load balancers to distribute traffic. The module emphasizes **reliability** through multi-availability zone deployment and **security** with features like database encryption, JWT authentication, and proper network access controls. It's designed to give developers an easy way to deploy a production-ready GraphQL API service with minimal configuration.
 
 
-**Source Repository:** [None](None)
 
 ```mermaid
 flowchart TD
