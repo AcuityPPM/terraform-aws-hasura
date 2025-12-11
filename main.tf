@@ -206,10 +206,6 @@ locals {
       value = "https://${var.app_domain}:443, https://${var.app_domain}"
     },
     {
-      name  = "HASURA_GRAPHQL_PG_CONNECTIONS",
-      value = "100"
-    },
-    {
       name  = "HASURA_GRAPHQL_JWT_SECRET",
       value = "{\"type\":\"${var.hasura_jwt_secret_algo}\", \"key\": \"${var.hasura_jwt_secret_key}\"}"
     },
