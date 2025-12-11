@@ -411,7 +411,28 @@ resource "aws_s3_bucket_acl" "hasura-acl" {
 # Add IAM policy to allow the ALB to log to it
 # -----------------------------------------------------------------------------
 
+# Opt-in regions use service principal instead of legacy ELB service account
+locals {
+  # List of opt-in regions that require service principal for ALB logging
+  opt_in_regions = [
+    "me-central-1",   # UAE
+    "me-south-1",     # Bahrain
+    "af-south-1",     # Cape Town
+    "ap-east-1",      # Hong Kong
+    "ap-south-2",     # Hyderabad
+    "ap-southeast-3", # Jakarta
+    "ap-southeast-4", # Melbourne
+    "eu-south-1",     # Milan
+    "eu-south-2",     # Spain
+    "eu-central-2",   # Zurich
+    "il-central-1",   # Tel Aviv
+  ]
+  is_opt_in_region = contains(local.opt_in_regions, var.region)
+}
+
+# Only fetch ELB service account for legacy regions
 data "aws_elb_service_account" "main" {
+  count = local.is_opt_in_region ? 0 : 1
 }
 
 data "aws_iam_policy_document" "hasura" {
@@ -419,9 +440,20 @@ data "aws_iam_policy_document" "hasura" {
     actions   = ["s3:PutObject"]
     resources = ["${aws_s3_bucket.hasura.arn}/alb/*"]
 
-    principals {
-      type        = "AWS"
-      identifiers = [data.aws_elb_service_account.main.arn]
+    dynamic "principals" {
+      for_each = local.is_opt_in_region ? [] : [1]
+      content {
+        type        = "AWS"
+        identifiers = [data.aws_elb_service_account.main[0].arn]
+      }
+    }
+
+    dynamic "principals" {
+      for_each = local.is_opt_in_region ? [1] : []
+      content {
+        type        = "Service"
+        identifiers = ["logdelivery.elasticloadbalancing.amazonaws.com"]
+      }
     }
   }
 }
