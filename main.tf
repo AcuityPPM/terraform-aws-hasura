@@ -307,9 +307,9 @@ resource "aws_cloudwatch_metric_alarm" "ecs_task_low_cpu_scale" {
 resource "aws_appautoscaling_policy" "scale_up_policy" {
   name               = "${var.rds_db_name}-scale-up-policy"
   policy_type        = "StepScaling"
-  resource_id        = "service/${aws_ecs_cluster.hasura.name}/${aws_ecs_service.hasura.name}"
-  scalable_dimension = "ecs:service:DesiredCount"
-  service_namespace  = "ecs"
+  resource_id        = aws_appautoscaling_target.this.resource_id
+  scalable_dimension = aws_appautoscaling_target.this.scalable_dimension
+  service_namespace  = aws_appautoscaling_target.this.service_namespace
 
   step_scaling_policy_configuration {
     adjustment_type         = "ChangeInCapacity"
@@ -317,19 +317,21 @@ resource "aws_appautoscaling_policy" "scale_up_policy" {
     metric_aggregation_type = "Maximum"
 
     step_adjustment {
-      scaling_adjustment = 1
+      scaling_adjustment          = 1
       metric_interval_lower_bound = 0
     }
   }
+
+  depends_on = [aws_appautoscaling_target.this]
 }
 
 # Create a step scaling policy for scaling down
 resource "aws_appautoscaling_policy" "scale_down_policy" {
   name               = "${var.rds_db_name}-scale-down-policy"
   policy_type        = "StepScaling"
-  resource_id        = "service/${aws_ecs_cluster.hasura.name}/${aws_ecs_service.hasura.name}"
-  scalable_dimension = "ecs:service:DesiredCount"
-  service_namespace  = "ecs"
+  resource_id        = aws_appautoscaling_target.this.resource_id
+  scalable_dimension = aws_appautoscaling_target.this.scalable_dimension
+  service_namespace  = aws_appautoscaling_target.this.service_namespace
 
   step_scaling_policy_configuration {
     adjustment_type         = "ChangeInCapacity"
@@ -341,6 +343,8 @@ resource "aws_appautoscaling_policy" "scale_down_policy" {
       metric_interval_upper_bound = 0
     }
   }
+
+  depends_on = [aws_appautoscaling_target.this]
 }
 
 # Ensure the scaling target is defined
@@ -402,9 +406,18 @@ resource "aws_s3_bucket" "hasura" {
   force_destroy = "true"
 }
 
-resource "aws_s3_bucket_acl" "hasura-acl" {
+# Enable ACLs for the bucket (required for new S3 buckets)
+resource "aws_s3_bucket_ownership_controls" "hasura" {
   bucket = aws_s3_bucket.hasura.id
-  acl    = "private"
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+resource "aws_s3_bucket_acl" "hasura-acl" {
+  bucket     = aws_s3_bucket.hasura.id
+  acl        = "private"
+  depends_on = [aws_s3_bucket_ownership_controls.hasura]
 }
 
 # -----------------------------------------------------------------------------
